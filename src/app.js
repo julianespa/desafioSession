@@ -25,7 +25,7 @@ const io = new Server(server)
 app.use(cookieParser())
 app.use(session({
     store: MongoStore.create({
-        mongoUrl:'mongodb+srv://julian:Je46239677@clasecoderatlas.strau.mongodb.net/sessions?retryWrites=true&w=majority',
+        mongoUrl:'',
         ttl: 600
     }),
     secret: 'fraseSecreta001',
