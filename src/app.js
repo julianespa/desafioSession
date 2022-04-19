@@ -5,6 +5,11 @@ const ProductManager = require('./Manager/products')
 const LogManager = require('./Manager/log')
 const options = require('./options/mysqlconfig.js')
 const normalizr = require('normalizr')
+const session = require('express-session')
+const cookieParser = require('cookie-parser')
+const MongoStore = require('connect-mongo')
+
+
 const normalize = normalizr.normalize
 const denormalize = normalizr.denormalize
 const schema = normalizr.schema
@@ -17,15 +22,26 @@ const PORT = process.env.PORT || 8080;
 const server = app.listen(PORT,()=>{console.log(`Listening on ${PORT}`)});
 const io = new Server(server)
 
+app.use(cookieParser())
+app.use(session({
+    store: MongoStore.create({
+        mongoUrl:'mongodb+srv://julian:Je46239677@clasecoderatlas.strau.mongodb.net/sessions?retryWrites=true&w=majority',
+        ttl: 600
+    }),
+    secret: 'fraseSecreta001',
+    resave: false,
+    saveUninitialized: false
+}))
+
 app.use(express.json());
 app.use(express.urlencoded({extended:true}));
 
-app.use(express.static(__dirname+'/public'))
+app.use('/',productRouter)
+
+app.use('/home',express.static(__dirname+'/public'))
 
 app.set('views', __dirname+'/views')
 app.set('view engine', 'ejs')
-
-app.use('/',productRouter)
 
 const author = new schema.Entity('authors')
 const mensajesS = {author:author}
@@ -38,7 +54,7 @@ const normalizeLogs = async () => {
     const normalizedLength = JSON.stringify(mensajes,null,2).length
     return {normalizedData:normalizedData, normalLength:normalLength, normalizedLength:normalizedLength}
 }
-normalizeLogs()
+
 
 io.on('connection', async socket=>{
     console.log('new user')

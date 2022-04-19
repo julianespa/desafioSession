@@ -11,9 +11,9 @@
             </thead>
             <% products.forEach(product => { %>
                 <tr>
-                    <td><%=product.name %>  </td>
+                    <td><%=product.title %>  </td>
                     <td><%= product.price %>  </td>
-                    <td><img src="<%= product.image %> " alt="imagen "+<%= product.name %> >  </td>
+                    <td><img src="<%= product.thumbnail %> " alt="imagen "+<%= product.title %> >  </td>
                 </tr>
             <% }) %>
         </table>

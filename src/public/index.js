@@ -96,3 +96,14 @@ socket.on('log',data=>{
     ratio.innerHTML = `Porcentaje de compresion de datos: ${Math.floor((1-(data.normalLength/data.normalizedLength))*100)}%`
     log.innerHTML = messages
 })
+let user
+
+fetch('/user').then(r=>r.json()).then(data=>user=data.user)
+
+let userTemplate = document.getElementById('user')
+fetch('templates/user.ejs').then(r=>{
+    return r.text()
+}).then(template =>{
+    const html = ejs.render(template,{user:user})
+    userTemplate.innerHTML = html
+})

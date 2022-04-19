@@ -3,6 +3,11 @@ const ProductManager = require('../Manager/products')  // Importo el manager de 
 const uploader = require('../services/upload') // Importo el uploader
 const options = require('../options/mysqlconfig.js')
 const faker = require('faker')
+let multer = require('multer');
+const session = require('express-session')
+
+
+let upload = multer();
 
 const router = express.Router()  // Instancio las rutas
 
@@ -11,10 +16,14 @@ const porductService = new ProductManager(options,'products') // Instancio los m
 const {name, datatype, image, commerce} = faker
 
 
+
 // Metodo GET
+
 router.get('/',(req,res)=>{
-    porductService.get()
-    .then(r=>res.render('products',{products:r.payload}))
+    // porductService.get()
+    // .then(r=>res.render('products',{products:r.payload}))
+    if(!req.session.user) return res.redirect('/login')
+    res.redirect('/home')
 })
 
 // Metodo GET by ID
@@ -29,7 +38,7 @@ router.post('/', uploader.single('file'), (req,res)=>{
     let product = req.body
     let file = req.file
     if(!file) return res.status(500).send({error:"Couldn't upload file"})
-    product.thumbnail = req.protocol+"://"+req.hostname+":8080/img/"+file.filename
+    product.thumbnail = req.protocol+"://"+req.hostname+":8080/home/img/"+file.filename
     porductService.add(product)
     .then(r=>res.send(r))
     
@@ -61,6 +70,27 @@ router.get('/api/productos-test',(req,res)=>{
         })
     }
     res.render('products',{products:obj})
+})
+
+router.get('/login',(req,res)=>{
+    if(!req.session.user) return res.render('login')
+    res.redirect('/')
+})
+
+router.post('/login',upload.fields([]),(req,res)=>{
+    let data = req.body
+    req.session.user = data.username
+    res.send(console.log('ok'))
+})
+
+router.get(('/user'),(req,res)=>{
+    let user = req.session
+    res.send(user)
+})
+
+router.get('/logout',(req,res)=>{
+    req.session.destroy()
+    res.render('logout')
 })
 
 module.exports = router
